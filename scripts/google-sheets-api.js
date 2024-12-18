@@ -1,21 +1,22 @@
 // Load environment variables from a secure source in production
-const SHEET_ID = '1ebu403DhcfqRJ6oVTZJHWT98-wxElQ5nx9djk-JoMp0';
-const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+const config = require('./config');
 
-// Function to get API key from a secure source
+// Use configuration from config.js
+const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${config.SHEET_ID}/values`;
+
+// Function to get API key from config
 function getApiKey() {
-    // In production, this should be loaded from environment variables or secure storage
-    return sessionStorage.getItem('SHEETS_API_KEY');
+    if (!config.API_KEY) {
+        throw new Error('API key not configured. Please set it in config.js');
+    }
+    return config.API_KEY;
 }
 
 // Fetch data from a specific sheet range
 async function fetchSheetData(range) {
     const API_KEY = getApiKey();
-    if (!API_KEY) {
-        throw new Error('API key not found');
-    }
-
     const url = `${BASE_URL}/${range}?key=${API_KEY}`;
+    
     try {
         const response = await fetch(url);
         if (!response.ok) {
