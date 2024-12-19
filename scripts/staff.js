@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Load stock data
-        const stockData = await getStockData();
+        const stockData = await window.getStockData();
         stockData.forEach(row => {
             const tr = document.createElement('tr');
             row.forEach(cell => {
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // Load all customer ledgers
-        const customerLedger = await getCustomerLedger();
+        const customerLedger = await window.getCustomerLedger();
         customerLedger.forEach(row => {
             const tr = document.createElement('tr');
             row.forEach(cell => {
