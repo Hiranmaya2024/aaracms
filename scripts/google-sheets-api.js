@@ -13,6 +13,9 @@ window.getStockData = async function() {
 window.getCustomerLedger = async function() {
     return await fetchSheetData('CustomerLedger!A2:B');
 };
+window.getLedger = async function() {
+    return await fetchSheetData('Ledger!A2:D');
+};
 
 window.getOffers = async function() {
     return await fetchSheetData('Offers!A2:A');
