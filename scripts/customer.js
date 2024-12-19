@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load customer ledger
        // const ledger = await window.getCustomerLedger;
         const ledger = await window.getLedger;
+        console.log(ledger);
         const userLedger = ledger.filter(row => row[0] === username);
         
         userLedger.forEach(row => {
