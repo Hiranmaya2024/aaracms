@@ -15,7 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.textContent = '';
 
         try {
-            const credentials = await getLoginCredentials();
+            if (typeof window.getLoginCredentials !== 'function') {
+                throw new Error('API functions not loaded properly');
+            }
+
+            const credentials = await window.getLoginCredentials();
+            if (!Array.isArray(credentials)) {
+                throw new Error('Invalid credentials data received');
+            }
+
             const user = credentials.find(row => row[0] === username && row[1] === password);
 
             if (user) {
