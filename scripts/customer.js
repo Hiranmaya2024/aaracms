@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Load offers
-        const offers = await getOffers();
+        const offers = await window.getOffers();
         offers.forEach(offer => {
             const li = document.createElement('li');
             li.textContent = offer[0];
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // Load customer ledger
-        const ledger = await getCustomerLedger();
+        const ledger = await window.getCustomerLedger();
         const userLedger = ledger.filter(row => row[0] === username);
         
         userLedger.forEach(row => {
