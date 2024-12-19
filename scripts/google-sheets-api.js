@@ -1,6 +1,23 @@
 // Use configuration from config.js (config object is loaded from config.js script)
 const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${config.SHEET_ID}/values`;
 
+// Make functions available globally
+window.getLoginCredentials = async function() {
+    return await fetchSheetData('Login!A2:C');
+};
+
+window.getStockData = async function() {
+    return await fetchSheetData('Stock!A2:C');
+};
+
+window.getCustomerLedger = async function() {
+    return await fetchSheetData('CustomerLedger!A2:B');
+};
+
+window.getOffers = async function() {
+    return await fetchSheetData('Offers!A2:A');
+};
+
 // Function to get API key from config
 function getApiKey() {
     if (!config.API_KEY) {
@@ -25,24 +42,4 @@ async function fetchSheetData(range) {
         console.error('Error fetching sheet data:', error);
         throw error;
     }
-}
-
-// Fetch login credentials
-async function getLoginCredentials() {
-    return await fetchSheetData('Login!A2:C');
-}
-
-// Fetch stock data
-async function getStockData() {
-    return await fetchSheetData('Stock!A2:C');
-}
-
-// Fetch customer ledger
-async function getCustomerLedger() {
-    return await fetchSheetData('CustomerLedger!A2:B');
-}
-
-// Fetch offers
-async function getOffers() {
-    return await fetchSheetData('Offers!A2:A');
 }
