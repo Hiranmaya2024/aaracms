@@ -1,7 +1,4 @@
-// Load environment variables from a secure source in production
-const config = require('./config');
-
-// Use configuration from config.js
+// Use configuration from config.js (config object is loaded from config.js script)
 const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${config.SHEET_ID}/values`;
 
 // Function to get API key from config
