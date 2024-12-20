@@ -7,7 +7,7 @@ window.getLoginCredentials = async function() {
 };
 
 window.getStockData = async function() {
-    return await fetchSheetData('Stock!A2:C');
+    return await fetchSheetData('Stock!A2:F');
 };
 
 window.getCustomerLedger = async function() {
