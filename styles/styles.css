@@ -1,9 +1,3 @@
-/*body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f0f0f0;
-}*/
 /* Overall Layout */
 body {
     margin: 0;
@@ -11,18 +5,6 @@ body {
     flex-direction: column; 
     height: 100vh; 
 }
-/*.login-container, .dashboard-container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}*/
-
-/*.login-container {
-    max-width: 400px;
-}*/
 
 h1, h2 {
     color: #333;
@@ -96,37 +78,10 @@ tr:hover {
 section {
     margin-bottom: 30px;
 }
-/*.container {
-    display: flex; 
-}*/
 
-/*.login-container {
-    flex: 30%; 
-    padding: 20px;
-    background-color: #f0f0f0; 
-}*/
-
-/*.content-container {
-    flex: 70%; 
-    padding: 20px;
-}*/
-
-/*.company-info {
-    margin-bottom: 20px;
-}*/
-
-/*.carousel-container {
-    /* Add CSS for carousel styling here */
-}*/
 .container {
     display: flex; 
 }
-
-/>.login-container {
-    flex: 30%; 
-    padding: 20px;
-    background-color: #f0f0f0; 
-}*/
 
 .content-container {
     flex: 70%; 
@@ -137,14 +92,6 @@ section {
     margin-bottom: 20px;
 }
 
-/*/.carousel-container {
-    overflow: hidden; 
-}*/
-
-.carousel {
-    display: flex; 
-    transition: transform 0.5s ease-in-out; 
-}
 
 .top-container {
     flex: 20%; 
@@ -192,6 +139,17 @@ section {
 .carousel-container {
     flex: 70%;
     padding: 20px;
+    overflow: hidden; 
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%; 
+}
+
+.slide {
+    flex: 0 0 100%; 
 }
 
 .login-container {
@@ -199,6 +157,62 @@ section {
     padding: 20px;
     background-color: #f0f0f0; 
 }
+
+/* ... rest of your existing CSS for login, carousel, etc. ... */
+
+/*.top-container {
+    flex: 20%; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    background-color: #f0f0f0; 
+}
+
+.bottom-container {
+    flex: 80%; 
+    display: flex; 
+}
+
+/* Top Container Sections */
+/*.logo-container {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.logo-container img {
+    margin-right: 10px;
+}
+
+.slider-container {
+    margin-right: 20px;
+}
+
+/* Slider 
+.slider {
+    overflow: hidden;
+    width: 300px; 
+}
+
+.slide {
+    display: flex;
+    align-items: center; 
+    width: 100%;
+    transform: translateX(0); 
+    transition: transform 0.5s ease-in-out; 
+}
+
+/* Bottom Container Sections 
+.carousel-container {
+    flex: 70%;
+    padding: 20px;
+}
+
+/*.login-container {
+    flex: 30%; 
+    padding: 20px;
+    background-color: #f0f0f0; 
+}*/
 
 /* ... rest of your existing CSS for login, carousel, etc. ... */
 /*.slide {
