@@ -1,10 +1,16 @@
-body {
+/*body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
     background-color: #f0f0f0;
+}*/
+/* Overall Layout */
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column; 
+    height: 100vh; 
 }
-
 /*.login-container, .dashboard-container {
     max-width: 800px;
     margin: 40px auto;
@@ -116,11 +122,11 @@ section {
     display: flex; 
 }
 
-.login-container {
+/>.login-container {
     flex: 30%; 
     padding: 20px;
     background-color: #f0f0f0; 
-}
+}*/
 
 .content-container {
     flex: 70%; 
@@ -131,18 +137,73 @@ section {
     margin-bottom: 20px;
 }
 
-.carousel-container {
+/*/.carousel-container {
     overflow: hidden; 
-}
+}*/
 
 .carousel {
     display: flex; 
     transition: transform 0.5s ease-in-out; 
 }
 
-.slide {
-    flex: 0 0 100%; 
+.top-container {
+    flex: 20%; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    background-color: #f0f0f0; 
 }
+
+.bottom-container {
+    flex: 80%; 
+    display: flex; 
+}
+
+/* Top Container Sections */
+.logo-container {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.logo-container img {
+    margin-right: 10px;
+}
+
+.slider-container {
+    margin-right: 20px;
+}
+
+/* Slider */
+.slider {
+    overflow: hidden;
+    width: 300px; 
+}
+
+.slide {
+    display: flex;
+    align-items: center; 
+    width: 100%;
+    transform: translateX(0); 
+    transition: transform 0.5s ease-in-out; 
+}
+
+/* Bottom Container Sections */
+.carousel-container {
+    flex: 70%;
+    padding: 20px;
+}
+
+.login-container {
+    flex: 30%; 
+    padding: 20px;
+    background-color: #f0f0f0; 
+}
+
+/* ... rest of your existing CSS for login, carousel, etc. ... */
+/*.slide {
+    flex: 0 0 100%; 
+}*/
 
 /* Add more CSS for styling as needed */
 /* Add more CSS for styling as needed */
