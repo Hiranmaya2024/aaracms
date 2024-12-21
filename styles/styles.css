@@ -115,6 +115,8 @@ section {
 
 .logo-container img {
     margin-right: 10px;
+    max-width: 100px;
+    height: auto;
 }
 
 .slider-container {
@@ -133,6 +135,10 @@ section {
     width: 100%;
     transform: translateX(0); 
     transition: transform 0.5s ease-in-out; 
+}
+.slide img {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Bottom Container Sections */
