@@ -5,18 +5,18 @@ body {
     background-color: #f0f0f0;
 }
 
-.login-container, .dashboard-container {
+/*.login-container, .dashboard-container {
     max-width: 800px;
     margin: 40px auto;
     background: #fff;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+}*/
 
-.login-container {
+/*.login-container {
     max-width: 400px;
-}
+}*/
 
 h1, h2 {
     color: #333;
@@ -90,3 +90,27 @@ tr:hover {
 section {
     margin-bottom: 30px;
 }
+.container {
+    display: flex; 
+}
+
+.login-container {
+    flex: 30%; 
+    padding: 20px;
+    background-color: #f0f0f0; 
+}
+
+.content-container {
+    flex: 70%; 
+    padding: 20px;
+}
+
+.company-info {
+    margin-bottom: 20px;
+}
+
+.carousel-container {
+    /* Add CSS for carousel styling here */
+}
+
+/* Add more CSS for styling as needed */
