@@ -14,7 +14,7 @@ window.getCustomerLedger = async function() {
     return await fetchSheetData('CustomerLedger!A2:B');
 };
 window.getLedger = async function() {
-    return await fetchSheetData('Ledger!A2:D');
+    return await fetchSheetData('Ledger!A2:G');
 };
 
 window.getOffers = async function() {
