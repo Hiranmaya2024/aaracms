@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Load all customer ledgers
         const customerLedger = await window.getCustomerLedger();
-        customerLedger.forEach(row => {
+       /* customerLedger.forEach(row => {
             const tr = document.createElement('tr');
             row.forEach(cell => {
                 const td = document.createElement('td');
@@ -30,7 +30,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tr.appendChild(td);
             });
             customerLedgerTable.appendChild(tr);
-        });
+        });*/
+        customerLedger.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.appendChild(createCell(row.balance)); 
+    tr.appendChild(createCell(row.currentyear));
+    tr.appendChild(createCell(row.currentmonthsale));
+    tr.appendChild(createCell(row.currentmonthpayment)); 
+    customerLedgerTable.appendChild(tr);
+});
+
+function createCell(value) {
+    const td = document.createElement('td');
+    td.textContent = value;
+    return td;
+}
     } catch (error) {
         console.error('Error loading staff data:', error);
         alert('Error loading data. Please try again later.');
