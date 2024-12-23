@@ -25,19 +25,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const customerLedger = await window.getCustomerLedger();
         customerLedger.forEach(row => {
             const tr = document.createElement('tr');
-            tr.appendChild(createCell(row.username));
-            tr.appendChild(createCell(row.balance));
-            tr.appendChild(createCell(row.currentyear));
-            tr.appendChild(createCell(row.currentmonthsale));
-            tr.appendChild(createCell(row.currentmonthpayment));
+            row.forEach(cell => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
             customerLedgerTable.appendChild(tr);
         });
 
-        function createCell(value) {
-            const td = document.createElement('td');
-            td.textContent = value || '-'; 
-            return td;
-        }
 
     } catch (error) {
         console.error('Error loading data:', error); 
