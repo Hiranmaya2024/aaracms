@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });*/
         customerLedger.forEach(row => {
     const tr = document.createElement('tr');
+    tr.appendChild(createCell(row.username)); 
     tr.appendChild(createCell(row.balance)); 
     tr.appendChild(createCell(row.currentyear));
     tr.appendChild(createCell(row.currentmonthsale));
