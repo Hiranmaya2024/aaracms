@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () =>
 if (!sessionStorage.getItem('isAuthenticated') || sessionStorage.getItem('userType') !== 'customer') 
 {
     window.location.href = '../index.html';
+    return;
 }
 
 
