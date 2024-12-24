@@ -6,7 +6,7 @@ if (!sessionStorage.getItem('isAuthenticated') || sessionStorage.getItem('userTy
 
 document.addEventListener('DOMContentLoaded', async () => 
     {
-    const ledgerTable = document.getElementById('ledgerTable1');
+    const ledgerTable = document.getElementById('ledgerTable');
     const username = sessionStorage.getItem('username');
      // Load customer ledger
         const ledger = await window.getLedger();
