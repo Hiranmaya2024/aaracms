@@ -36,9 +36,10 @@ document.addEventListener('DOMContentLoaded', async () =>
                 });
             ledgerTable.appendChild(tr);
            });
-    } catch (error) 
+    
+        /*catch (error) 
         {
         console.error('Error loading customer data:', error);
         alert('Error loading data. Please try again later.');
-        }
+        }*/
 });
