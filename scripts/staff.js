@@ -30,9 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         //        td.textContent = cell;
         //        tr.appendChild(td);
         //    });
-            customerLedgerTable.appendChild(tr);
+        //    customerLedgerTable.appendChild(tr);
         });
   paginateTable('pendingPaymentsTable', 10); // Apply pagination
 
-    } 
-);
+    });
