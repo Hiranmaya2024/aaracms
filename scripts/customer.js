@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () =>
                 });
             ledgerTable.appendChild(tr);
            });
-    
+    paginateTable('ledgerTable', 10); // Apply pagination
         /*catch (error) 
         {
         console.error('Error loading customer data:', error);
