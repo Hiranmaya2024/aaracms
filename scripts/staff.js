@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             customerLedgerTable.appendChild(tr);
         });
-
+  paginateTable('pendingPaymentsTable', 10); // Apply pagination
 
     } catch (error) {
         console.error('Error loading data:', error); 
