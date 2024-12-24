@@ -23,5 +23,5 @@ document.addEventListener('DOMContentLoaded', async () =>
                 });
             ledgerTable.appendChild(tr);
            });
-    paginateTable('ledgerTable', 10); // Apply pagination
+    paginateTable('ledgerTable1', 10); // Apply pagination
        });
