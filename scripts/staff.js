@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return; // Important: Exit the function early after redirection
     }
 
-    try {
+    
         // Load stock data
         const stockData = await window.getStockData();
         stockData.forEach(row => {
@@ -34,8 +34,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
   paginateTable('pendingPaymentsTable', 10); // Apply pagination
 
-    } catch (error) {
-        console.error('Error loading data:', error); 
-        alert('Error loading data. Please try again later.');
-    }
-});
+    } 
+);
