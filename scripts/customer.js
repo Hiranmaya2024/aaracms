@@ -25,5 +25,5 @@ if (!sessionStorage.getItem('isAuthenticated') || sessionStorage.getItem('userTy
                 });
             ledgerTable.appendChild(tr);
            });
-    paginateTable('ledgerTable1', 10); // Apply pagination
+    paginateTable('ledgerTable', 10); // Apply pagination
        });
