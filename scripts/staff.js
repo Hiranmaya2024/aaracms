@@ -35,6 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             customerLedgerTable.appendChild(tr);
             });
-     paginateTable('customerpendingTable', 10); // Apply pagination
+     paginateTable('customerLedgerTable', 10); // Apply pagination
 
  });
