@@ -4,6 +4,7 @@ function paginateTable(tableId, rowsPerPage) {
   const rows = Array.from(tbody.rows);
   const paginationContainer = document.getElementById('paginationContainer');
   const totalPages = Math.ceil(rows.length / rowsPerPage);
+  let currentPage = 1; // Track the current page
 
   function renderPage(page) {
     tbody.innerHTML = ''; // Clear the table
@@ -11,28 +12,43 @@ function paginateTable(tableId, rowsPerPage) {
     const end = start + rowsPerPage;
     rows.slice(start, end).forEach(row => tbody.appendChild(row));
 
-    // Update pagination
-    Array.from(paginationContainer.children).forEach(btn =>
-      btn.classList.remove('active')
-    );
-    document
-      .querySelector(`.pagination-btn[data-page="${page}"]`)
-      .classList.add('active');
+    // Update buttons
+    document.getElementById('prevBtn').disabled = page === 1;
+    document.getElementById('nextBtn').disabled = page === totalPages;
   }
 
   function setupPagination() {
     paginationContainer.innerHTML = ''; // Clear previous buttons
 
-    for (let i = 1; i <= totalPages; i++) {
-      const button = document.createElement('button');
-      button.classList.add('pagination-btn');
-      button.textContent = i;
-      button.dataset.page = i;
-      button.onclick = () => renderPage(i);
-      paginationContainer.appendChild(button);
-    }
+    // Create Previous Button
+    const prevButton = document.createElement('button');
+    prevButton.id = 'prevBtn';
+    prevButton.textContent = 'Previous';
+    prevButton.classList.add('btn', 'btn-secondary', 'me-2');
+    prevButton.disabled = true; // Initially disabled
+    prevButton.onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    };
+    paginationContainer.appendChild(prevButton);
 
-    renderPage(1); // Default to first page
+    // Create Next Button
+    const nextButton = document.createElement('button');
+    nextButton.id = 'nextBtn';
+    nextButton.textContent = 'Next';
+    nextButton.classList.add('btn', 'btn-secondary', 'ms-2');
+    nextButton.disabled = totalPages === 1; // Disable if only one page
+    nextButton.onclick = () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    };
+    paginationContainer.appendChild(nextButton);
+
+    renderPage(currentPage); // Render the first page
   }
 
   setupPagination();
