@@ -34,5 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             customerLedgerTable.appendChild(tr);
             });
-     paginateTable('pendingPaymentsTable', 10); // Apply pagination
+     paginateTable('stocksTable', 10); // Apply pagination
+     paginateTable('customerPendingTable', 10); // Apply pagination
+
  });
