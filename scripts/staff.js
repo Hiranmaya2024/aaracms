@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             stockTable.appendChild(tr);
             });
- 
+      paginateTable('stocksTable', 10); // Apply pagination
+
    // Load all customer ledgers
         const customerLedger = await window.getCustomerLedger();
         customerLedger.forEach(row => {
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             customerLedgerTable.appendChild(tr);
             });
-     paginateTable('stocksTable', 10); // Apply pagination
      paginateTable('customerPendingTable', 10); // Apply pagination
 
  });
