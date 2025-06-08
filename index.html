@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pharmaceutical Order System</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
@@ -508,7 +507,7 @@
   <div class="container">
     <header>
       <h1>Pharmaceutical Order System</h1>
-      <p class="app-subtitle">Create orders and export to WhatsApp via PDF/Image</p>
+      <p class="app-subtitle">Create orders and export images for WhatsApp</p>
     </header>
     
     <div class="form-grid">
@@ -561,7 +560,7 @@
     </div>
     
     <div class="app-footer">
-      <p>PharmaOrder Pro v1.4 • Fixed number to words function</p>
+      <p>PharmaOrder Pro v1.5 • Fixed quantity logic, removed PDF</p>
     </div>
   </div>
 
@@ -766,7 +765,14 @@
         const existingItemIndex = orderCart.findIndex(item => item.id === itemId);
 
         if (quantity > 0) {
-            const orderItem = { id: itemId, company, name: itemName, rate, quantity, stock };
+            const orderItem = { 
+              id: itemId, 
+              company, 
+              name: itemName, 
+              rate, 
+              quantity, 
+              stock 
+            };
             if (existingItemIndex > -1) {
                 orderCart[existingItemIndex] = orderItem;
             } else {
@@ -841,11 +847,8 @@
           </table>
         </div>
         <div class="export-options">
-          <button class="export-btn" onclick="generatePDF()">
-            <i class="icon pdf-icon"></i> Download PDF
-          </button>
           <button class="export-btn" onclick="generateImage()">
-            <i class="icon image-icon"></i> Download Image
+            <i class="icon">📷</i> Download Order Image
           </button>
         </div>`;
 
@@ -879,96 +882,7 @@
             return;
         }
 
-        // Ask user which format they prefer
-        const format = prompt("How would you like to share the order?\nEnter '1' for PDF or '2' for Image", "1");
-        
-        if (format === '1') {
-            generatePDF(true);
-        } else if (format === '2') {
-            generateImage(true);
-        } else {
-            showModal("Format Error", "Please select a valid format (PDF or Image)");
-        }
-    }
-
-    function generatePDF(whatsappShare = false) {
-      if (orderCart.length === 0) {
-        showModal("Empty Order", "Your cart is empty. Nothing to download.");
-        return;
-      }
-
-      const customerName = elements.customerName.value.trim() || 'N/A';
-      const date = new Date();
-      const dateStr = date.toLocaleDateString('en-GB');
-      const timeStr = date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-      
-      // Create new PDF
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      // Title
-      doc.setFontSize(20);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(46, 125, 50); // Primary color
-      doc.text('ORDER FOR AARADHYA PHARMACEUTICALS', 105, 15, null, null, 'center');
-      
-      // Pharmacy Info
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Shop: ${customerName}`, 20, 25);
-      doc.text(`Date: ${dateStr} ${timeStr}`, 20, 30);
-      
-      // Table data
-      const tableData = orderCart.map(item => [
-        item.company,
-        item.name,
-        item.quantity,
-        `₹${item.rate.toFixed(2)}`,
-        `₹${(item.quantity * item.rate).toFixed(2)}`
-      ]);
-      
-      // Calculate grand total
-      const grandTotal = orderCart.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
-      
-      // Add table
-      doc.autoTable({
-        head: [['Company', 'Item', 'Qty', 'Rate', 'Total']],
-        body: tableData,
-        startY: 40,
-        theme: 'grid',
-        headStyles: { 
-          fillColor: [33, 150, 243],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold'
-        },
-        styles: {
-          fontSize: 10,
-          cellPadding: 3
-        },
-        margin: { top: 10 }
-      });
-      
-      // Grand total
-      const finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`, 20, finalY);
-      doc.text(`Rupees ${numberToWords(grandTotal)} Only`, 20, finalY + 7);
-      
-      // Footer
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "italic");
-      doc.text('Thank you for your order!', 105, finalY + 20, null, null, 'center');
-      
-      if (whatsappShare) {
-        const fileName = `Aaradhya_Order_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
-        doc.save(fileName);
-        showModal("PDF Ready", "Your order PDF has been downloaded. Please attach it to WhatsApp manually.");
-      } else {
-        const fileName = `Aaradhya_Order_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
-        doc.save(fileName);
-      }
+        generateImage(true);
     }
 
     function generateImage(whatsappShare = false) {
