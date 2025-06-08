@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pharmaceutical Order System</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #2e7d32;
@@ -34,6 +36,7 @@
       color: #333;
       line-height: 1.6;
       min-height: 100vh;
+      background: linear-gradient(135deg, #f5f9fc 0%, #e8f4f8 100%);
     }
 
     .container {
@@ -41,8 +44,8 @@
       margin: 20px auto;
       background: white;
       padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
     }
 
     header {
@@ -50,12 +53,20 @@
       margin-bottom: 30px;
       padding-bottom: 15px;
       border-bottom: 2px solid var(--primary);
+      position: relative;
     }
 
     h1 {
       color: var(--primary);
       margin: 0;
       font-size: clamp(1.8rem, 4vw, 2.5rem);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .app-subtitle {
+      color: #555;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      margin-top: 5px;
     }
 
     h2 {
@@ -64,12 +75,19 @@
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
       font-size: clamp(1.3rem, 3vw, 1.8rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
+      background: #f8fbfd;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
     }
 
     .form-group, .search-container {
@@ -79,23 +97,26 @@
     label {
       display: block;
       margin-bottom: 8px;
-      font-weight: 500;
+      font-weight: 600;
       font-size: clamp(0.9rem, 3vw, 1rem);
+      color: #444;
     }
 
     select, input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 6px;
+      padding: 12px 15px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       font-size: clamp(0.9rem, 3vw, 1rem);
-      transition: border-color 0.3s;
+      transition: all 0.3s;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
     select:focus, input[type="text"]:focus, input[type="number"]:focus {
       border-color: var(--secondary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
+      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.2);
     }
     
     input:disabled {
@@ -111,6 +132,8 @@
       border: 1px solid var(--border);
       max-height: 400px;
       position: relative;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
     table {
@@ -131,6 +154,7 @@
       position: sticky;
       top: 0;
       z-index: 10;
+      color: var(--secondary-dark);
     }
 
     tr:nth-child(even) {
@@ -144,79 +168,83 @@
 
     .loading, .no-results {
       text-align: center;
-      padding: 20px;
+      padding: 30px;
       color: var(--secondary);
+      font-size: 1.1rem;
     }
     
     .stock-info {
       font-size: 0.85rem;
       color: #555;
     }
+    
+    .stock-low {
+      color: #e65100;
+      font-weight: bold;
+    }
 
-    /* Messages */
-    .message-area {
-      min-height: 20px;
-      margin: 15px 0;
-    }
-    
-    .error-message, .success-message {
-      padding: 12px 15px;
-      border-radius: 6px;
-      margin: 15px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .error-message {
-      color: var(--danger-dark);
-      background: var(--error-bg);
-      border-left: 4px solid var(--danger);
-    }
-    
-    .success-message {
-      color: var(--primary-dark);
-      background: var(--success-bg);
-      border-left: 4px solid var(--primary);
-    }
-    
     /* Buttons */
     .action-buttons {
       display: flex;
       gap: 15px;
       flex-wrap: wrap;
       margin-top: 20px;
+      justify-content: center;
     }
 
     .btn {
-      padding: 12px 25px;
+      padding: 14px 25px;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: clamp(0.9rem, 3vw, 1rem);
-      transition: background-color 0.3s, transform 0.2s;
+      transition: all 0.3s;
       text-align: center;
       flex: 1;
-      min-width: 120px;
+      min-width: 150px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.15);
     }
     
     .btn:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
     
-    .btn-primary { background-color: var(--primary); }
-    .btn-primary:hover { background-color: var(--primary-dark); }
+    .btn-primary { 
+      background-color: var(--primary); 
+      background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+    }
+    .btn-primary:hover { background: linear-gradient(to bottom, var(--primary), #145a1d); }
     
-    .btn-secondary { background-color: var(--secondary); }
-    .btn-secondary:hover { background-color: var(--secondary-dark); }
+    .btn-secondary { 
+      background-color: var(--secondary); 
+      background: linear-gradient(to bottom, var(--secondary), var(--secondary-dark));
+    }
+    .btn-secondary:hover { background: linear-gradient(to bottom, var(--secondary), #0a3d8a); }
     
-    .btn-danger { background-color: var(--danger); }
-    .btn-danger:hover { background-color: var(--danger-dark); }
+    .btn-danger { 
+      background-color: var(--danger); 
+      background: linear-gradient(to bottom, var(--danger), var(--danger-dark));
+    }
+    .btn-danger:hover { background: linear-gradient(to bottom, var(--danger), #a31818); }
+    
+    .btn-whatsapp {
+      background: linear-gradient(to bottom, #25D366, #128C7E);
+    }
+    
+    .btn-whatsapp:hover {
+      background: linear-gradient(to bottom, #22c15e, #0f7a6d);
+    }
 
     /* Order summary */
     #orderSummaryContainer tfoot .total-in-words {
@@ -224,6 +252,10 @@
       color: var(--primary);
       font-style: italic;
       font-size: clamp(0.9rem, 3vw, 1rem);
+      padding: 15px;
+      background: #f0f7f0;
+      border-radius: 8px;
+      margin-top: 10px;
     }
 
     .remove-item-btn {
@@ -231,24 +263,25 @@
       border: none;
       color: var(--danger);
       cursor: pointer;
-      font-size: 1.4rem;
-      width: 32px;
-      height: 32px;
+      font-size: 1.5rem;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: background-color 0.2s;
+      transition: all 0.2s;
     }
     
     .remove-item-btn:hover {
       background-color: rgba(198, 40, 40, 0.1);
+      transform: scale(1.1);
     }
 
     /* Scrollbar styling */
     .table-container::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
     }
 
     .table-container::-webkit-scrollbar-track {
@@ -283,11 +316,16 @@
       
       .form-grid {
         gap: 15px;
+        padding: 15px;
       }
       
       .btn {
-        padding: 10px 15px;
-        min-width: 100px;
+        padding: 12px 20px;
+        min-width: 140px;
+      }
+      
+      h2 {
+        margin-top: 20px;
       }
     }
     
@@ -306,6 +344,7 @@
       
       .btn {
         flex: 1 0 100%;
+        padding: 12px;
       }
       
       .form-grid {
@@ -325,17 +364,18 @@
       background-color: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(2px);
     }
     
     .modal-content {
       background-color: white;
       margin: auto;
       padding: 30px;
-      border-radius: 10px;
+      border-radius: 15px;
       width: 90%;
-      max-width: 450px;
+      max-width: 500px;
       text-align: center;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       animation: modalAppear 0.3s ease-out;
     }
     
@@ -354,6 +394,7 @@
       font-size: 1.1rem;
       margin-bottom: 25px;
       line-height: 1.5;
+      color: #444;
     }
     
     .modal-buttons {
@@ -363,8 +404,8 @@
     }
     
     .modal-btn {
-      padding: 10px 25px;
-      min-width: 100px;
+      padding: 12px 25px;
+      min-width: 120px;
       font-size: 1rem;
     }
     
@@ -376,17 +417,90 @@
       background: var(--danger);
       color: white;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     .btn-with-badge {
       position: relative;
+    }
+    
+    /* Export options */
+    .export-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .export-btn {
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+    
+    .export-btn:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+    }
+    
+    /* App footer */
+    .app-footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
+    /* Export header */
+    .export-header {
+      background: #2e7d32;
+      color: white;
+      padding: 20px;
+      border-radius: 10px 10px 0 0;
+      text-align: center;
+      margin-bottom: -1px;
+    }
+    
+    .export-header h2 {
+      color: white;
+      border: none;
+      margin: 0;
+      padding: 0;
+      font-size: 1.8rem;
+    }
+    
+    .export-header p {
+      margin: 5px 0 0;
+      font-size: 1.1rem;
+    }
+    
+    /* Export container */
+    #exportContainer {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 800px;
+      max-width: 100%;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -394,11 +508,9 @@
   <div class="container">
     <header>
       <h1>Pharmaceutical Order System</h1>
-      <p>Manage orders efficiently across all devices</p>
+      <p class="app-subtitle">Create orders and export to WhatsApp via PDF/Image</p>
     </header>
     
-    <div class="message-area" id="messageArea"></div>
-
     <div class="form-grid">
         <div class="form-group">
           <label for="customerName">Customer / Shop Name</label>
@@ -417,7 +529,7 @@
         <input type="text" id="itemSearch" oninput="renderProductList()" placeholder="Start typing to search for a product...">
     </div>
 
-    <h2>Product List</h2>
+    <h2><i class="icon">📋</i> Product List</h2>
     <div class="table-container" id="itemsTableContainer">
       <table id="itemsTable">
         <thead>
@@ -438,11 +550,29 @@
     
     <div class="action-buttons">
       <button class="btn btn-primary btn-with-badge" onclick="sendOnWhatsApp()">
-        <span>Send on WhatsApp</span>
+        <i class="icon whatsapp-icon"></i>
+        <span>Send to WhatsApp</span>
         <span class="cart-badge" id="cartBadge">0</span>
       </button>
-      <button class="btn btn-danger" onclick="clearOrder()">Clear Order</button>
+      <button class="btn btn-danger" onclick="clearOrder()">
+        <i class="icon">❌</i>
+        Clear Order
+      </button>
     </div>
+    
+    <div class="app-footer">
+      <p>PharmaOrder Pro v1.4 • Fixed number to words function</p>
+    </div>
+  </div>
+
+  <!-- Hidden export container -->
+  <div id="exportContainer">
+    <div class="export-header">
+      <h2>ORDER FOR AARADHYA PHARMACEUTICALS</h2>
+      <p id="exportShopName">Shop: </p>
+      <p id="exportDateTime">Date: </p>
+    </div>
+    <div id="exportContent"></div>
   </div>
 
   <!-- Alert Modal -->
@@ -467,13 +597,16 @@
       companySelect: document.getElementById('companySelect'),
       itemSearch: document.getElementById('itemSearch'),
       itemsTableContainer: document.getElementById('itemsTableContainer'),
-      messageArea: document.getElementById('messageArea'),
       customerName: document.getElementById('customerName'),
       orderSummaryContainer: document.getElementById('orderSummaryContainer'),
       alertModal: document.getElementById('alertModal'),
       modalTitle: document.getElementById('modalTitle'),
       modalMessage: document.getElementById('modalMessage'),
-      cartBadge: document.getElementById('cartBadge')
+      cartBadge: document.getElementById('cartBadge'),
+      exportContainer: document.getElementById('exportContainer'),
+      exportContent: document.getElementById('exportContent'),
+      exportShopName: document.getElementById('exportShopName'),
+      exportDateTime: document.getElementById('exportDateTime')
     };
     
     // --- Initialization ---
@@ -576,6 +709,7 @@
 
         const tr = document.createElement('tr');
         if (stock === 0) tr.classList.add('out-of-stock');
+        if (stock > 0 && stock < 10) tr.querySelector('.stock-info')?.classList.add('stock-low');
         
         tr.innerHTML = `
           <td data-label="Item">${row.item || 'N/A'}</td>
@@ -619,7 +753,14 @@
         }
 
         const remainingStockSpan = document.getElementById(`rem-stock-${company}-${itemName}`);
-        if (remainingStockSpan) remainingStockSpan.textContent = stock - quantity;
+        if (remainingStockSpan) {
+          remainingStockSpan.textContent = stock - quantity;
+          if (stock - quantity < 10) {
+            remainingStockSpan.parentElement.classList.add('stock-low');
+          } else {
+            remainingStockSpan.parentElement.classList.remove('stock-low');
+          }
+        }
 
         const itemId = `${company}-${itemName}`;
         const existingItemIndex = orderCart.findIndex(item => item.id === itemId);
@@ -653,7 +794,7 @@
 
       let grandTotal = 0;
       let summaryHtml = `
-        <h2>Order Summary (${orderCart.length} items)</h2>
+        <h2><i class="icon">🛒</i> Order Summary (${orderCart.length} items)</h2>
         <div class="table-container">
           <table class="summary-table">
             <thead>
@@ -672,7 +813,7 @@
         const itemTotal = item.quantity * item.rate;
         grandTotal += itemTotal;
         summaryHtml += `
-          <tr>
+          <tr class="cart-item">
             <td data-label="Company">${item.company}</td>
             <td data-label="Item">${item.name}</td>
             <td data-label="Qty">${item.quantity}</td>
@@ -698,6 +839,14 @@
               </tr>
             </tfoot>
           </table>
+        </div>
+        <div class="export-options">
+          <button class="export-btn" onclick="generatePDF()">
+            <i class="icon pdf-icon"></i> Download PDF
+          </button>
+          <button class="export-btn" onclick="generateImage()">
+            <i class="icon image-icon"></i> Download Image
+          </button>
         </div>`;
 
       elements.orderSummaryContainer.innerHTML = summaryHtml;
@@ -730,72 +879,186 @@
             return;
         }
 
-        let message = `*NEW ORDER - AARADHYA PHARMACEUTICALS*\n\n`;
-        message += `*Date:* ${new Date().toLocaleDateString('en-GB')}\n`;
-        message += `*Customer:* ${customerName}\n\n`;
-        message += `*Order Summary:*\n`;
-        message += '```\n'; // Monospace block for table
+        // Ask user which format they prefer
+        const format = prompt("How would you like to share the order?\nEnter '1' for PDF or '2' for Image", "1");
         
-        // Table header
-        message += `${'Item'.padEnd(30)}${'Qty'.padEnd(8)}${'Rate'.padEnd(12)}${'Total'.padEnd(12)}\n`;
-        message += '-'.repeat(62) + '\n';
-        
-        // Table rows
-        let grandTotal = 0;
-        orderCart.forEach(item => {
-            const total = item.quantity * item.rate;
-            grandTotal += total;
-            const itemName = item.name.length > 28 ? item.name.substring(0, 25) + '...' : item.name;
-            message += `${itemName.padEnd(30)}`;
-            message += `${item.quantity.toString().padEnd(8)}`;
-            message += `₹${item.rate.toFixed(2).padEnd(12)}`;
-            message += `₹${total.toFixed(2).padEnd(12)}\n`;
-        });
-        
-        // Table footer
-        message += '-'.repeat(62) + '\n';
-        message += `${'Grand Total:'.padEnd(50)}₹${grandTotal.toFixed(2)}\n`;
-        message += '```\n';
-        
-        // Total in words
-        message += `\n*Grand Total: ₹${grandTotal.toFixed(2)}*\n`;
-        message += `(${numberToWords(grandTotal)} Only)\n\n`;
-        message += 'Thank you for your order!';
+        if (format === '1') {
+            generatePDF(true);
+        } else if (format === '2') {
+            generateImage(true);
+        } else {
+            showModal("Format Error", "Please select a valid format (PDF or Image)");
+        }
+    }
 
-        const encodedMessage = encodeURIComponent(message);
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+    function generatePDF(whatsappShare = false) {
+      if (orderCart.length === 0) {
+        showModal("Empty Order", "Your cart is empty. Nothing to download.");
+        return;
+      }
+
+      const customerName = elements.customerName.value.trim() || 'N/A';
+      const date = new Date();
+      const dateStr = date.toLocaleDateString('en-GB');
+      const timeStr = date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+      
+      // Create new PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // Title
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(46, 125, 50); // Primary color
+      doc.text('ORDER FOR AARADHYA PHARMACEUTICALS', 105, 15, null, null, 'center');
+      
+      // Pharmacy Info
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Shop: ${customerName}`, 20, 25);
+      doc.text(`Date: ${dateStr} ${timeStr}`, 20, 30);
+      
+      // Table data
+      const tableData = orderCart.map(item => [
+        item.company,
+        item.name,
+        item.quantity,
+        `₹${item.rate.toFixed(2)}`,
+        `₹${(item.quantity * item.rate).toFixed(2)}`
+      ]);
+      
+      // Calculate grand total
+      const grandTotal = orderCart.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
+      
+      // Add table
+      doc.autoTable({
+        head: [['Company', 'Item', 'Qty', 'Rate', 'Total']],
+        body: tableData,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { 
+          fillColor: [33, 150, 243],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 10,
+          cellPadding: 3
+        },
+        margin: { top: 10 }
+      });
+      
+      // Grand total
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`, 20, finalY);
+      doc.text(`Rupees ${numberToWords(grandTotal)} Only`, 20, finalY + 7);
+      
+      // Footer
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.text('Thank you for your order!', 105, finalY + 20, null, null, 'center');
+      
+      if (whatsappShare) {
+        const fileName = `Aaradhya_Order_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
+        doc.save(fileName);
+        showModal("PDF Ready", "Your order PDF has been downloaded. Please attach it to WhatsApp manually.");
+      } else {
+        const fileName = `Aaradhya_Order_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
+        doc.save(fileName);
+      }
+    }
+
+    function generateImage(whatsappShare = false) {
+      if (orderCart.length === 0) {
+        showModal("Empty Order", "Your cart is empty. Nothing to download.");
+        return;
+      }
+
+      const customerName = elements.customerName.value.trim() || 'N/A';
+      const date = new Date();
+      const dateStr = date.toLocaleDateString('en-GB');
+      const timeStr = date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+      
+      // Update export container
+      elements.exportShopName.textContent = `Shop: ${customerName}`;
+      elements.exportDateTime.textContent = `Date: ${dateStr} ${timeStr}`;
+      
+      // Clone the order summary
+      const orderSummary = document.querySelector('#orderSummaryContainer').cloneNode(true);
+      elements.exportContent.innerHTML = '';
+      elements.exportContent.appendChild(orderSummary);
+      
+      // Show the export container temporarily
+      elements.exportContainer.style.display = 'block';
+      
+      html2canvas(elements.exportContainer, {
+        scale: 2,
+        backgroundColor: "#FFFFFF",
+        useCORS: true
+      }).then(canvas => {
+        // Hide the export container again
+        elements.exportContainer.style.display = 'none';
+        
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const fileName = `Aaradhya_Order_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.png`;
+        
+        link.href = imgData;
+        link.download = fileName;
+        link.click();
+        
+        if (whatsappShare) {
+          showModal("Image Ready", "Your order image has been downloaded. Please attach it to WhatsApp manually.");
+        }
+      });
     }
 
     function numberToWords(num) {
-        if (num === 0) return 'Zero';
+        if (isNaN(num)) return "Invalid Number";
+        const n = Math.floor(num);
+        if (n === 0) return 'Zero';
+        
         const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
                   'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
         const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
         
         const transform = (n) => {
             let str = '';
-            if (n > 99) str += a[Math.floor(n / 100)] + ' Hundred ';
-            n %= 100;
-            if (n > 19) str += b[Math.floor(n / 10)] + ' ' + a[n % 10];
-            else str += a[n];
+            if (n > 99) {
+                str += a[Math.floor(n / 100)] + ' Hundred ';
+                n %= 100;
+            }
+            if (n > 19) {
+                str += b[Math.floor(n / 10)] + ' ' + a[n % 10];
+            } else {
+                str += a[n];
+            }
             return str.trim();
         };
         
         let result = '';
-        if (num > 9999999) { 
-            result += transform(Math.floor(num / 10000000)) + ' Crore '; 
-            num %= 10000000; 
+        let remaining = n;
+
+        if (remaining > 9999999) {
+            const crores = Math.floor(remaining / 10000000);
+            result += transform(crores) + ' Crore ';
+            remaining %= 10000000;
         }
-        if (num > 99999) { 
-            result += transform(Math.floor(num / 100000)) + ' Lakh '; 
-            num %= 100000; 
+        if (remaining > 99999) {
+            const lakhs = Math.floor(remaining / 100000);
+            result += transform(lakhs) + ' Lakh ';
+            remaining %= 100000;
         }
-        if (num > 999) { 
-            result += transform(Math.floor(num / 1000)) + ' Thousand '; 
-            num %= 1000; 
+        if (remaining > 999) {
+            const thousands = Math.floor(remaining / 1000);
+            result += transform(thousands) + ' Thousand ';
+            remaining %= 1000;
         }
-        result += transform(num);
-        
+        result += transform(remaining);
+
         return result.trim().replace(/\s+/g, ' ');
     }
   </script>
