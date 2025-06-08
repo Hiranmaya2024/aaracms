@@ -4,17 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pharmaceutical Order System</title>
-  <!-- PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     :root {
       --primary: #2e7d32;
+      --primary-dark: #1b5e20;
       --secondary: #1565c0;
+      --secondary-dark: #0d47a1;
       --danger: #c62828;
+      --danger-dark: #b71c1c;
       --light-bg: #f5f9fc;
       --border: #b0bec5;
       --disabled-bg: #f5f5f5;
       --disabled-text: #bdbdbd;
+      --success-bg: #c8e6c9;
+      --error-bg: #ffcdd2;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
     body {
@@ -23,6 +33,7 @@
       background: var(--light-bg);
       color: #333;
       line-height: 1.6;
+      min-height: 100vh;
     }
 
     .container {
@@ -44,6 +55,7 @@
     h1 {
       color: var(--primary);
       margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
     }
 
     h2 {
@@ -51,12 +63,13 @@
       margin-top: 25px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
     }
     
     .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
     }
 
     .form-group, .search-container {
@@ -67,38 +80,57 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     select, input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 10px;
+      padding: 10px 12px;
       border-radius: 6px;
       border: 1px solid var(--border);
-      font-size: 1rem;
-      box-sizing: border-box;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      transition: border-color 0.3s;
+    }
+    
+    select:focus, input[type="text"]:focus, input[type="number"]:focus {
+      border-color: var(--secondary);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
     }
     
     input:disabled {
-        background-color: var(--disabled-bg);
-        cursor: not-allowed;
+      background-color: var(--disabled-bg);
+      cursor: not-allowed;
+    }
+
+    /* Table styling */
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      max-height: 400px;
+      position: relative;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 20px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      min-width: 600px;
     }
 
     th, td {
-      padding: 12px 10px;
-      border: 1px solid var(--border);
+      padding: 12px 15px;
       text-align: left;
+      border-bottom: 1px solid var(--border);
     }
 
     th {
       background-color: #e3f2fd;
       font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     tr:nth-child(even) {
@@ -106,8 +138,8 @@
     }
     
     tr.out-of-stock {
-        background-color: var(--disabled-bg);
-        color: var(--disabled-text);
+      background-color: var(--disabled-bg);
+      color: var(--disabled-text);
     }
 
     .loading, .no-results {
@@ -117,34 +149,43 @@
     }
     
     .stock-info {
-        font-size: 0.85rem;
-        color: #555;
+      font-size: 0.85rem;
+      color: #555;
     }
 
-    .error-message, .success-message {
-      padding: 12px;
-      border-radius: 4px;
+    /* Messages */
+    .message-area {
+      min-height: 20px;
       margin: 15px 0;
-      text-align: center;
+    }
+    
+    .error-message, .success-message {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
     .error-message {
-      color: var(--danger);
-      background: #ffcdd2;
-      border: 1px solid var(--danger);
+      color: var(--danger-dark);
+      background: var(--error-bg);
+      border-left: 4px solid var(--danger);
     }
     
     .success-message {
-      color: var(--primary);
-      background: #c8e6c9;
-      border: 1px solid var(--primary);
+      color: var(--primary-dark);
+      background: var(--success-bg);
+      border-left: 4px solid var(--primary);
     }
     
+    /* Buttons */
     .action-buttons {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 20px;
     }
 
     .btn {
@@ -153,66 +194,210 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      transition: background-color 0.3s, transform 0.2s;
       text-align: center;
+      flex: 1;
+      min-width: 120px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
     .btn-primary { background-color: var(--primary); }
-    .btn-primary:hover { background-color: #1b5e20; }
+    .btn-primary:hover { background-color: var(--primary-dark); }
     
     .btn-secondary { background-color: var(--secondary); }
-    .btn-secondary:hover { background-color: #0d47a1; }
+    .btn-secondary:hover { background-color: var(--secondary-dark); }
     
     .btn-danger { background-color: var(--danger); }
-    .btn-danger:hover { background-color: #b71c1c; }
+    .btn-danger:hover { background-color: var(--danger-dark); }
 
-    #messageArea { min-height: 20px; }
-    
+    /* Order summary */
     #orderSummaryContainer tfoot .total-in-words {
-        font-weight: bold;
-        color: var(--primary);
-        font-style: italic;
+      font-weight: bold;
+      color: var(--primary);
+      font-style: italic;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .remove-item-btn {
-        background: none;
-        border: none;
-        color: var(--danger);
-        cursor: pointer;
-        font-size: 1.2rem;
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.4rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+    
+    .remove-item-btn:hover {
+      background-color: rgba(198, 40, 40, 0.1);
     }
 
+    /* Scrollbar styling */
+    .table-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: #a0a0a0;
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: #707070;
+    }
+
+    /* Responsive design */
     @media (max-width: 768px) {
-      table:not(.summary-table), thead:not(.summary-table thead), tbody, th, td, tr {
-        display: block;
+      .container {
+        padding: 15px;
+        margin: 10px auto;
       }
-      thead tr { display: none; }
-      tr { border: 1px solid var(--border); margin-bottom: 10px; }
-      td {
+      
+      header {
+        margin-bottom: 20px;
+      }
+      
+      .table-container {
+        max-height: 350px;
         border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 50%;
-        text-align: right;
       }
-      td:before {
-        position: absolute;
-        left: 10px;
-        width: 45%;
-        padding-right: 10px;
-        white-space: nowrap;
-        content: attr(data-label);
-        font-weight: bold;
-        text-align: left;
+      
+      .form-grid {
+        gap: 15px;
       }
+      
+      .btn {
+        padding: 10px 15px;
+        min-width: 100px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 12px;
+      }
+      
+      .action-buttons {
+        gap: 10px;
+      }
+      
+      .btn {
+        flex: 1 0 100%;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Alert modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+      animation: modalAppear 0.3s ease-out;
+    }
+    
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--danger);
+    }
+    
+    .modal-message {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .modal-btn {
+      padding: 10px 25px;
+      min-width: 100px;
+      font-size: 1rem;
+    }
+    
+    /* Badge for cart items */
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .btn-with-badge {
+      position: relative;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header><h1>Pharmaceutical Order System</h1></header>
+    <header>
+      <h1>Pharmaceutical Order System</h1>
+      <p>Manage orders efficiently across all devices</p>
+    </header>
     
-    <div id="messageArea"></div>
+    <div class="message-area" id="messageArea"></div>
 
     <div class="form-grid">
         <div class="form-group">
@@ -233,7 +418,7 @@
     </div>
 
     <h2>Product List</h2>
-    <div id="itemsTableContainer">
+    <div class="table-container" id="itemsTableContainer">
       <table id="itemsTable">
         <thead>
           <tr>
@@ -251,22 +436,75 @@
     
     <div id="orderSummaryContainer"></div>
     
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-with-badge" onclick="sendOnWhatsApp()">
+        <span>Send on WhatsApp</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn btn-danger" onclick="clearOrder()">Clear Order</button>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="modal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle">Alert</h3>
+      <p class="modal-message" id="modalMessage"></p>
+      <div class="modal-buttons">
+        <button class="btn btn-primary modal-btn" onclick="closeModal()">OK</button>
+      </div>
+    </div>
   </div>
 
   <script>
     // --- Global Variables ---
     let allItems = [];
-    let orderCart = []; // Persistent cart for the order
+    let orderCart = [];
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQr4sjY3X6feIrArFpABeMXbtHTOZb5X-psMFvsAXl2KPivzS8xfE_x-HPVmWcw-TnGgW2EiUVRWEDC/pub?output=csv';
+    
+    // --- DOM Elements Cache ---
+    const elements = {
+      companySelect: document.getElementById('companySelect'),
+      itemSearch: document.getElementById('itemSearch'),
+      itemsTableContainer: document.getElementById('itemsTableContainer'),
+      messageArea: document.getElementById('messageArea'),
+      customerName: document.getElementById('customerName'),
+      orderSummaryContainer: document.getElementById('orderSummaryContainer'),
+      alertModal: document.getElementById('alertModal'),
+      modalTitle: document.getElementById('modalTitle'),
+      modalMessage: document.getElementById('modalMessage'),
+      cartBadge: document.getElementById('cartBadge')
+    };
     
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => loadCSVData());
+    
+    // --- Modal Functions ---
+    function showModal(title, message) {
+      elements.modalTitle.textContent = title;
+      elements.modalMessage.textContent = message;
+      elements.alertModal.style.display = 'flex';
+    }
+    
+    function closeModal() {
+      elements.alertModal.style.display = 'none';
+    }
 
     function loadCSVData() {
+      // Show loading indicator
+      document.querySelector('#itemsTable tbody').innerHTML = '<tr><td colspan="4" class="loading">Loading product data...</td></tr>';
+      
       Papa.parse(CSV_URL, {
-        download: true, header: true, skipEmptyLines: true,
+        download: true, 
+        header: true, 
+        skipEmptyLines: true,
         complete: results => {
-          if (results.errors.length) console.error("Errors during parsing:", results.errors);
+          if (results.errors.length) {
+            console.error("Errors during parsing:", results.errors);
+            showModal("Data Error", "Failed to load product data. Please try again later.");
+            return;
+          }
+          
           allItems = results.data.map(row => {
             const normalized = {};
             for (const key in row) {
@@ -276,36 +514,37 @@
             }
             return normalized;
           });
+          
           populateCompanyDropdown();
-          renderOrderSummary(); // Initial empty summary
+          renderOrderSummary();
         },
         error: error => {
           console.error('Error loading CSV:', error);
-          displayMessage("Failed to load data. Please check the sheet URL or your connection.", 'error');
+          showModal("Connection Error", "Failed to load data. Please check your internet connection.");
         }
       });
     }
 
     function populateCompanyDropdown() {
-      const companySelect = document.getElementById('companySelect');
-      companySelect.innerHTML = '<option value="">-- Select Company --</option>';
+      elements.companySelect.innerHTML = '<option value="">-- Select Company --</option>';
       const companies = [...new Set(allItems.map(row => row.company).filter(Boolean))].sort();
+      
       companies.forEach(company => {
         const option = document.createElement('option');
         option.value = company;
         option.textContent = company;
-        companySelect.appendChild(option);
+        elements.companySelect.appendChild(option);
       });
     }
 
     function handleCompanyChange() {
-        document.getElementById('itemSearch').value = ''; // Reset search on company change
+        elements.itemSearch.value = '';
         renderProductList();
     }
 
     function renderProductList() {
-      const selectedCompany = document.getElementById('companySelect').value;
-      const searchQuery = document.getElementById('itemSearch').value.toLowerCase();
+      const selectedCompany = elements.companySelect.value;
+      const searchQuery = elements.itemSearch.value.toLowerCase();
       const tbody = document.querySelector('#itemsTable tbody');
       tbody.innerHTML = '';
 
@@ -315,12 +554,16 @@
       }
       
       let filteredItems = allItems.filter(row => row.company === selectedCompany);
-      if(searchQuery) {
-          filteredItems = filteredItems.filter(row => row.item.toLowerCase().includes(searchQuery));
+      
+      if (searchQuery) {
+        filteredItems = filteredItems.filter(row => 
+          row.item.toLowerCase().includes(searchQuery) ||
+          (row.code && row.code.toLowerCase().includes(searchQuery))
+        );
       }
       
       if (filteredItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="no-results">No products found for this company ${searchQuery ? 'matching your search' : ''}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="no-results">No products found ${searchQuery ? 'matching your search' : ''}.</td></tr>`;
         return;
       }
       
@@ -354,20 +597,29 @@
         `;
         tbody.appendChild(tr);
       });
+      
+      // Add scrollbar if more than 10 items
+      elements.itemsTableContainer.style.overflowY = filteredItems.length > 10 ? 'auto' : 'visible';
     }
 
     function handleQuantityChange(input, company, itemName, rate, stock) {
         let quantity = parseInt(input.value, 10);
         
-        // --- Input Validation ---
-        if (isNaN(quantity) || quantity < 0) quantity = 0;
+        // Input validation
+        if (isNaN(quantity) || quantity < 0) {
+            quantity = 0;
+            input.value = 0;
+            showModal("Invalid Input", "Quantity must be a positive number");
+        }
+        
         if (quantity > stock) {
             quantity = stock;
             input.value = stock;
+            showModal("Stock Limit", `Cannot order more than available stock (${stock}) for ${itemName}`);
         }
 
         const remainingStockSpan = document.getElementById(`rem-stock-${company}-${itemName}`);
-        if(remainingStockSpan) remainingStockSpan.textContent = stock - quantity;
+        if (remainingStockSpan) remainingStockSpan.textContent = stock - quantity;
 
         const itemId = `${company}-${itemName}`;
         const existingItemIndex = orderCart.findIndex(item => item.id === itemId);
@@ -375,101 +627,120 @@
         if (quantity > 0) {
             const orderItem = { id: itemId, company, name: itemName, rate, quantity, stock };
             if (existingItemIndex > -1) {
-                orderCart[existingItemIndex] = orderItem; // Update quantity
+                orderCart[existingItemIndex] = orderItem;
             } else {
-                orderCart.push(orderItem); // Add new item
+                orderCart.push(orderItem);
             }
-        } else {
-            if (existingItemIndex > -1) {
-                orderCart.splice(existingItemIndex, 1); // Remove if quantity is 0
-            }
+        } else if (existingItemIndex > -1) {
+            orderCart.splice(existingItemIndex, 1);
         }
+        
+        // Update cart badge
+        elements.cartBadge.textContent = orderCart.reduce((sum, item) => sum + item.quantity, 0);
+        
         renderOrderSummary();
     }
     
     function removeFromCart(itemId) {
         orderCart = orderCart.filter(item => item.id !== itemId);
-        renderProductList(); // Re-render product list to update quantities
-        renderOrderSummary(); // Re-render summary
+        renderProductList();
+        renderOrderSummary();
     }
 
     function renderOrderSummary() {
-      const container = document.getElementById('orderSummaryContainer');
-      container.innerHTML = '';
+      elements.orderSummaryContainer.innerHTML = '';
       if (orderCart.length === 0) return;
 
       let grandTotal = 0;
       let summaryHtml = `
-        <h2>Order Summary</h2>
-        <table class="summary-table">
-          <thead><tr><th>Company</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th><th>Action</th></tr></thead>
-          <tbody>`;
+        <h2>Order Summary (${orderCart.length} items)</h2>
+        <div class="table-container">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
 
       orderCart.forEach(item => {
         const itemTotal = item.quantity * item.rate;
         grandTotal += itemTotal;
         summaryHtml += `
           <tr>
-            <td>${item.company}</td>
-            <td>${item.name}</td>
-            <td>${item.quantity}</td>
-            <td>₹${item.rate.toFixed(2)}</td>
-            <td>₹${itemTotal.toFixed(2)}</td>
-            <td><button class="remove-item-btn" onclick="removeFromCart('${item.id}')">&times;</button></td>
+            <td data-label="Company">${item.company}</td>
+            <td data-label="Item">${item.name}</td>
+            <td data-label="Qty">${item.quantity}</td>
+            <td data-label="Rate">₹${item.rate.toFixed(2)}</td>
+            <td data-label="Total">₹${itemTotal.toFixed(2)}</td>
+            <td data-label="Action">
+              <button class="remove-item-btn" onclick="removeFromCart('${item.id}')" title="Remove item">
+                ×
+              </button>
+            </td>
           </tr>`;
       });
       
       summaryHtml += `
-          </tbody>
-          <tfoot>
-            <tr style="font-weight:bold;">
-              <td colspan="4">Grand Total</td>
-              <td colspan="2">₹${grandTotal.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td colspan="6" class="total-in-words">Rupees ${numberToWords(grandTotal)} Only</td>
-            </tr>
-          </tfoot>
-        </table>
-        <div class="action-buttons">
-            <button class="btn btn-primary" onclick="sendOnWhatsApp()">Send on WhatsApp</button>
-            <button class="btn btn-danger" onclick="clearOrder()">Clear Order</button>
+            </tbody>
+            <tfoot>
+              <tr style="font-weight:bold;">
+                <td colspan="4">Grand Total</td>
+                <td colspan="2">₹${grandTotal.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td colspan="6" class="total-in-words">Rupees ${numberToWords(grandTotal)} Only</td>
+              </tr>
+            </tfoot>
+          </table>
         </div>`;
 
-      container.innerHTML = summaryHtml;
+      elements.orderSummaryContainer.innerHTML = summaryHtml;
     }
     
     function clearOrder() {
-        orderCart = [];
-        document.getElementById('customerName').value = '';
-        document.getElementById('itemSearch').value = '';
-        renderProductList();
-        renderOrderSummary();
+        if (orderCart.length === 0) {
+            showModal("Empty Order", "Your cart is already empty.");
+            return;
+        }
+        
+        if (confirm("Are you sure you want to clear your entire order?")) {
+            orderCart = [];
+            elements.customerName.value = '';
+            elements.itemSearch.value = '';
+            elements.cartBadge.textContent = '0';
+            renderProductList();
+            renderOrderSummary();
+        }
     }
 
     function sendOnWhatsApp() {
-        const customerName = document.getElementById('customerName').value.trim();
+        const customerName = elements.customerName.value.trim();
         if (!customerName) {
-            displayMessage("Please enter a customer or shop name before sending.", 'error');
+            showModal("Missing Information", "Please enter a customer or shop name before sending.");
             return;
         }
         if (orderCart.length === 0) {
-            displayMessage("Your cart is empty. Please add items to place an order.", 'error');
+            showModal("Empty Order", "Your cart is empty. Please add items to place an order.");
             return;
         }
 
-        // Create tabular WhatsApp message
         let message = `*NEW ORDER - AARADHYA PHARMACEUTICALS*\n\n`;
         message += `*Date:* ${new Date().toLocaleDateString('en-GB')}\n`;
         message += `*Customer:* ${customerName}\n\n`;
         message += `*Order Summary:*\n`;
-        message += '```\n'; // Start monospace block for table
+        message += '```\n'; // Monospace block for table
         
-        // Create table header
+        // Table header
         message += `${'Item'.padEnd(30)}${'Qty'.padEnd(8)}${'Rate'.padEnd(12)}${'Total'.padEnd(12)}\n`;
         message += '-'.repeat(62) + '\n';
         
-        // Add items to table
+        // Table rows
         let grandTotal = 0;
         orderCart.forEach(item => {
             const total = item.quantity * item.rate;
@@ -481,12 +752,12 @@
             message += `₹${total.toFixed(2).padEnd(12)}\n`;
         });
         
-        // Add footer to table
+        // Table footer
         message += '-'.repeat(62) + '\n';
         message += `${'Grand Total:'.padEnd(50)}₹${grandTotal.toFixed(2)}\n`;
-        message += '```\n'; // End monospace block
+        message += '```\n';
         
-        // Add total in words
+        // Total in words
         message += `\n*Grand Total: ₹${grandTotal.toFixed(2)}*\n`;
         message += `(${numberToWords(grandTotal)} Only)\n\n`;
         message += 'Thank you for your order!';
@@ -497,8 +768,10 @@
 
     function numberToWords(num) {
         if (num === 0) return 'Zero';
-        const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
+                  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
         const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
         const transform = (n) => {
             let str = '';
             if (n > 99) str += a[Math.floor(n / 100)] + ' Hundred ';
@@ -507,22 +780,23 @@
             else str += a[n];
             return str.trim();
         };
+        
         let result = '';
-        if (num > 9999999) { result += transform(Math.floor(num / 10000000)) + ' Crore '; num %= 10000000; }
-        if (num > 99999) { result += transform(Math.floor(num / 100000)) + ' Lakh '; num %= 100000; }
-        if (num > 999) { result += transform(Math.floor(num / 1000)) + ' Thousand '; num %= 1000; }
+        if (num > 9999999) { 
+            result += transform(Math.floor(num / 10000000)) + ' Crore '; 
+            num %= 10000000; 
+        }
+        if (num > 99999) { 
+            result += transform(Math.floor(num / 100000)) + ' Lakh '; 
+            num %= 100000; 
+        }
+        if (num > 999) { 
+            result += transform(Math.floor(num / 1000)) + ' Thousand '; 
+            num %= 1000; 
+        }
         result += transform(num);
+        
         return result.trim().replace(/\s+/g, ' ');
-    }
-
-    function displayMessage(message, type = 'error') {
-        const messageArea = document.getElementById('messageArea');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
-        messageDiv.textContent = message;
-        messageArea.innerHTML = '';
-        messageArea.appendChild(messageDiv);
-        setTimeout(() => messageArea.innerHTML = '', 4000);
     }
   </script>
 </body>
